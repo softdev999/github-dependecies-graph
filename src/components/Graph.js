@@ -6,8 +6,6 @@ import NodeLabel from './NodeLabel';
 
 const dependenciesGraph = [
   {
-    name: 'Rails/Rails',
-    attributes: {},
     children: [],
   },
 ];
@@ -40,19 +38,21 @@ export const GET_DEPENDENCY_QUERY = gql`
 `
 
 export function Graph(props) {
+  const { login, name, count } = props;
+
   const [treeData, setTreeData] = useState(dependenciesGraph)
   const [loadingQuery, setLoadingQuery] = useState(true)
-  const translate = {x: window.innerWidth / 2, y: window.innerHeight / 3};
-
-  const { count } = props;
+  const translate = {x: window.innerWidth / 2, y: window.innerHeight / 3}; // to put the tree in the center of the container
+  
   const { loading, error, data } = useQuery(
     GET_DEPENDENCY_QUERY, 
-    { variables: { name: 'rails', login: 'rails', count:  count} }
-  );
+    { variables: { name: name, login: login, count:  count} }
+  ); // use useQuery to get data from graphql query
 
   useEffect(() => {
-    if (data) {
+    if (data && data.repository) {
       let originData = dependenciesGraph;
+      originData[0].name = login + '/' + name;
       const nodes = data.repository.dependencyGraphManifests.nodes;
       const firstNode = nodes[0]; // the very first node , in this case dependencies in Gemfile
       const dependencies = firstNode.dependencies.nodes;
@@ -71,9 +71,9 @@ export function Graph(props) {
         })
       }
       setTreeData(originData);
-      setLoadingQuery(false);      
+      setLoadingQuery(false);
     }
-  }, [data])
+  }, [data, login, name]) // data received from graphql query
 
   useEffect(() => {
     if (error) {
@@ -87,13 +87,22 @@ export function Graph(props) {
   if (loadingQuery || loading)
     return (
       <div className="App">
-        <Loader type="ThreeDots" color="#2BAD60" height="100" width="100" />
-        <div>Loading ...</div>
+        <div>
+          <Loader type="ThreeDots" color="#2BAD60" height="100" width="100" />
+          <div className="loading">Loading ...</div>
+        </div>
       </div>
     );
+  
+  if(error) {
+    return(
+      <div className="App">
+        <div className="error">{error.graphQLErrors[0].message}</div>
+      </div>
+    )
+  }
 
   return (
-      
       <div className="App">
         <div style={{width: '100vw', height: '100vh'}}>
           <Tree 

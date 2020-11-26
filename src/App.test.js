@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 
 import {GET_DEPENDENCY_QUERY, Graph} from './components/Graph';
@@ -67,7 +67,7 @@ const mocks =
 it('render graph ql', () => {
   render(
     <MockedProvider mocks={[mocks]} >
-      <Graph count={1}/>
+      <Graph count={1} name={mocks.request.variables.name} login={mocks.request.variables.login} />
     </MockedProvider>
   )
 });
@@ -75,8 +75,8 @@ it('render graph ql', () => {
 it('should render dependency', async () => {
   await act(async () => {
     const component = render(
-      <MockedProvider mocks={[mocks, mocks, mocks, mocks, mocks]} addTypename={false}>
-        <Graph count={1}/>
+      <MockedProvider mocks={[mocks, mocks]} addTypename={false}>
+        <Graph count={1} name={mocks.request.variables.name} login={mocks.request.variables.login}/>
       </MockedProvider>
     )
   
@@ -90,7 +90,7 @@ it('should render dependency', async () => {
 it('should render loading state initially', () => {
   const component = render(
     <MockedProvider mocks={[]} >
-      <Graph count={1}/>
+      <Graph count={1} name={mocks.request.variables.name} login={mocks.request.variables.login} />
     </MockedProvider>
   )
   const { getByText } = component

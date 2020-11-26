@@ -20,7 +20,6 @@ const NodeLabel = ({nodeData}) => {
       );
     }
 
-
     if (hasChildren) {
       return <circle stroke="#cccccc" fill="#cccccc" {...circleStyleBase} />;
     }
